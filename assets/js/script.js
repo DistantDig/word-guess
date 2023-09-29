@@ -11,6 +11,11 @@ var word = [];
 var wordToGuess = document.getElementById("word-to-guess");
 var wordHidden = [];
 
+var timer = document.getElementById("timer");
+
+var wins = 0;
+var losses = 0;
+
 function newGame() {
     word = words[Math.floor(Math.random() * words.length)].split("");
     console.log(word);
@@ -19,7 +24,33 @@ function newGame() {
         wordHidden.push("_ ");
     }
 
+    document.addEventListener("keydown", detectKeydown);
     renderWord();
+    timeLeft();
+}
+
+function timeLeft() {
+    var seconds = 15;
+    var localTimer = setInterval(function () {
+        timer.innerHTML = "Time: " + seconds;
+
+        if (seconds == 0) {
+            clearInterval(localTimer);
+            document.removeEventListener("keydown", detectKeydown);
+            losses++;
+            console.log("Wins: " + wins);
+            console.log("Losses: " + losses);
+        } else if (!wordHidden.includes("_ ")) {
+            clearInterval(localTimer);
+            document.removeEventListener("keydown", detectKeydown);
+            wins++;
+            console.log("Wins: " + wins);
+            console.log("Losses: " + losses);
+        }
+        else {
+            seconds--;
+        }
+    }, 1000);
 }
 
 function renderWord() {
@@ -44,8 +75,5 @@ function detectKeydown(event) {
         console.log(userGuess, "does not exists")
     }
 }
-
-
-document.addEventListener("keydown", detectKeydown);
 
 newGame();
