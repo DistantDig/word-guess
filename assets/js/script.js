@@ -1,8 +1,8 @@
 /**
- * Registering user keydown 
- * Use localStorage
- * Have a timer for guessing
- * Have a button that starts the game
+ * Registering user keydown - DONE
+ * Use localStorage - DONE
+ * Have a timer for guessing - DONE
+ * Have a button that starts the game - DONE
  */
 
 
@@ -12,9 +12,28 @@ var wordToGuess = document.getElementById("word-to-guess");
 var wordHidden = [];
 
 var timer = document.getElementById("timer");
+var startGame = document.getElementById("button");
+var scoreboard = document.getElementById("scoreboard");
+var scoreWins = document.getElementById("wins");
+var scoreLosses = document.getElementById("losses");
 
-var wins = 0;
-var losses = 0;
+
+if (localStorage.getItem("wins") == "") {
+    localStorage.setItem("wins", 0);
+}
+
+if (localStorage.getItem("wins") == undefined) {
+    localStorage.setItem("wins", 0);
+}
+
+if (localStorage.getItem("losses") == "") {
+    localStorage.setItem("losses", 0);
+}
+
+if (localStorage.getItem("losses") == undefined) {
+    localStorage.setItem("losses", 0);
+}
+
 
 function newGame() {
     word = words[Math.floor(Math.random() * words.length)].split("");
@@ -25,8 +44,21 @@ function newGame() {
     }
 
     document.addEventListener("keydown", detectKeydown);
-    renderWord();
+    renderer();
     timeLeft();
+
+    startGame.style.visibility = "hidden";
+}
+
+function endGame() {
+    console.log("Wins: " + localStorage.getItem("wins"));
+    console.log("Losses: " + localStorage.getItem("losses"));
+    document.removeEventListener("keydown", detectKeydown);
+    startGame.style.visibility = "visible";
+
+    wordHidden = [];
+    timer.innerHTML = "";
+    renderer();
 }
 
 function timeLeft() {
@@ -36,16 +68,22 @@ function timeLeft() {
 
         if (seconds == 0) {
             clearInterval(localTimer);
-            document.removeEventListener("keydown", detectKeydown);
-            losses++;
-            console.log("Wins: " + wins);
-            console.log("Losses: " + losses);
+            // losses++;
+            var losses = parseInt(localStorage.getItem("losses"));
+            console.log(losses);
+            localStorage.setItem("losses", losses + 1);
+            endGame();
+
+            alert("You lose");
         } else if (!wordHidden.includes("_ ")) {
             clearInterval(localTimer);
-            document.removeEventListener("keydown", detectKeydown);
-            wins++;
-            console.log("Wins: " + wins);
-            console.log("Losses: " + losses);
+            // wins++;
+            var wins = parseInt(localStorage.getItem("wins"));
+            console.log(wins);
+            localStorage.setItem("wins", wins + 1);
+            endGame();
+
+            alert("You win!");
         }
         else {
             seconds--;
@@ -53,8 +91,10 @@ function timeLeft() {
     }, 1000);
 }
 
-function renderWord() {
+function renderer() {
     wordToGuess.innerHTML = wordHidden.join("");
+    scoreWins.innerHTML = "Wins: " + localStorage.getItem("wins");
+    scoreLosses.innerHTML = "Losses: " + localStorage.getItem("losses");
 }
 
 
@@ -69,11 +109,12 @@ function detectKeydown(event) {
 
         wordHidden[letterIndex] = userGuess; // Replace the underscore with the correct letter
         word[letterIndex] = "_"; // Replace the letter with an underscore to handle duplicate letters
-        renderWord();
+        renderer();
 
     } else {
         console.log(userGuess, "does not exists")
     }
 }
 
-newGame();
+// newGame();
+renderer();
